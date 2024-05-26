@@ -1,0 +1,79 @@
+package com.example;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class CovidResponseCenterTest {
+    private CovidResponseCenter covidResponseCenter;
+
+    @BeforeEach
+    public void setUp() throws IOException {
+        covidResponseCenter = new CovidResponseCenter();
+        covidResponseCenter.loadGraph("guategrafo.txt");
+        covidResponseCenter.floydWarshall();
+    }
+
+    @Test
+    public void testAddNode() {
+        String newCity = "NuevaCiudad";
+        int initialSize = covidResponseCenter.cities.size();
+        if (!covidResponseCenter.cityIndex.containsKey(newCity)) {
+            covidResponseCenter.cityIndex.put(newCity, covidResponseCenter.cities.size());
+            covidResponseCenter.cities.add(newCity);
+        }
+        int newSize = covidResponseCenter.cities.size();
+        assertEquals(initialSize + 1, newSize);
+        assertTrue(covidResponseCenter.cityIndex.containsKey(newCity));
+    }
+
+    @Test
+    public void testAddArc() {
+        String city1 = "Mixco";
+        String city2 = "NuevaCiudad";
+        int distance = 50;
+        if (!covidResponseCenter.cityIndex.containsKey(city2)) {
+            covidResponseCenter.cityIndex.put(city2, covidResponseCenter.cities.size());
+            covidResponseCenter.cities.add(city2);
+        }
+        int u = covidResponseCenter.cityIndex.get(city1);
+        int v = covidResponseCenter.cityIndex.get(city2);
+        covidResponseCenter.dist[u][v] = distance;
+
+        assertEquals(distance, covidResponseCenter.dist[u][v]);
+    }
+
+    @Test
+    public void testRemoveArc() {
+        String city1 = "Mixco";
+        String city2 = "Antigua";
+        int u = covidResponseCenter.cityIndex.get(city1);
+        int v = covidResponseCenter.cityIndex.get(city2);
+        covidResponseCenter.dist[u][v] = CovidResponseCenter.INF;
+
+        assertEquals(CovidResponseCenter.INF, covidResponseCenter.dist[u][v]);
+    }
+
+    @Test
+    public void testFloydWarshall() {
+        covidResponseCenter.floydWarshall();
+        String city1 = "Mixco";
+        String city2 = "SantaLucia";
+        int u = covidResponseCenter.cityIndex.get(city1);
+        int v = covidResponseCenter.cityIndex.get(city2);
+
+        int expectedDistance = 30 + 25 + 15;
+        assertEquals(expectedDistance, covidResponseCenter.dist[u][v]);
+    }
+
+    @Test
+    public void testGraphCenter() {
+        String centerCity = covidResponseCenter.graphCenter();
+        assertNotNull(centerCity);
+
+    }
+}
